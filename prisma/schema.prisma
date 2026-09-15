@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  STAFF
+}
+
+enum StudentStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum AttendanceType {
+  ENTRY
+  EXIT
+}
+
+enum FeeStatus {
+  PENDING
+  PAID
+  PARTIAL
+  OVERDUE
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+  BANK_TRANSFER
+  CARD
+  OTHER
+}
+
+model Library {
+  id                String    @id @default(uuid())
+  name              String
+  address           String?
+  phone             String?
+  email             String?
+  capacity          Int       @default(50)
+  defaultMonthlyFee Decimal   @default(0) @db.Decimal(10, 2)
+  timezone          String    @default("Asia/Kolkata")
+  logoUrl           String?
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  users             User[]
+  students          Student[]
+  attendanceEvents  AttendanceEvent[]
+  feeRecords        FeeRecord[]
+
+  @@map("libraries")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  libraryId     String
+  library       Library   @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+
+  name          String
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(STAFF)
+  phone         String?
+  isActive      Boolean   @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  recordedPayments FeeRecord[] @relation("PaymentRecordedBy")
+  recordedScans    AttendanceEvent[] @relation("ScanRecordedBy")
+
+  @@index([libraryId])
+  @@map("users")
+}
+
+model Student {
+  id              String        @id @default(uuid())
+  libraryId       String
+  library         Library       @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+
+  name            String
+  phone           String
+  email           String?
+  photoUrl        String?
+  gender          String?
+  dateOfBirth     DateTime?
+  address         String?
+
+  joinDate        DateTime      @default(now())
+  status          StudentStatus @default(ACTIVE)
+  deactivatedAt   DateTime?
+  deactivationReason String?
+
+  qrToken         String        @unique
+  seatNumber      String?
+  monthlyFeeOverride Decimal?  @db.Decimal(10, 2)
+
+  emergencyContactName  String?
+  emergencyContactPhone String?
+
+  notes           String?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  attendanceEvents AttendanceEvent[]
+  feeRecords       FeeRecord[]
+
+  @@index([libraryId])
+  @@index([libraryId, status])
+  @@index([phone])
+  @@map("students")
+}
+
+model AttendanceEvent {
+  id            String          @id @default(uuid())
+  libraryId     String
+  library       Library         @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+
+  studentId     String
+  student       Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  type          AttendanceType
+  timestamp     DateTime        @default(now())
+
+  method        String          @default("QR")
+  recordedById  String?
+  recordedBy    User?           @relation("ScanRecordedBy", fields: [recordedById], references: [id])
+
+  deviceInfo    String?
+  notes         String?
+
+  createdAt     DateTime        @default(now())
+
+  @@index([libraryId, timestamp])
+  @@index([studentId, timestamp])
+  @@map("attendance_events")
+}
+
+model FeeRecord {
+  id              String        @id @default(uuid())
+  libraryId       String
+  library         Library       @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+
+  studentId       String
+  student         Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  billingMonth    DateTime
+  amount          Decimal       @db.Decimal(10, 2)
+  amountPaid      Decimal       @default(0) @db.Decimal(10, 2)
+  dueDate         DateTime
+  status          FeeStatus     @default(PENDING)
+
+  paidDate        DateTime?
+  paymentMethod   PaymentMethod?
+  transactionRef  String?
+  recordedById    String?
+  recordedBy      User?         @relation("PaymentRecordedBy", fields: [recordedById], references: [id])
+
+  discountAmount  Decimal?      @db.Decimal(10, 2)
+  discountReason  String?
+
+  notes           String?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([studentId, billingMonth])
+  @@index([libraryId, status])
+  @@index([libraryId, dueDate])
+  @@map("fee_records")
+}

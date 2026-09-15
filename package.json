@@ -1,0 +1,30 @@
+{
+  "name": "libman-backend",
+  "version": "1.0.0",
+  "description": "Library Management System REST API",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "db:init": "npx prisma migrate dev --name init",
+    "db:seed": "node setup.js",
+    "db:studio": "npx prisma studio"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "@prisma/client": "^6.18.0",
+    "zod": "^3.24.0",
+    "jsonwebtoken": "^9.0.2",
+    "bcrypt": "^5.1.1",
+    "qrcode": "^1.5.4",
+    "dotenv": "^16.4.0",
+    "pino": "^9.6.0",
+    "pino-http": "^10.2.0",
+    "compression": "^1.7.4",
+    "helmet": "^8.1.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.18.0"
+  }
+}
