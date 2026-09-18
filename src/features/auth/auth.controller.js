@@ -54,7 +54,13 @@ export async function meController(req, res, next) {
     });
 
     if (!user) throw new NotFoundError('User not found');
-    res.json({ user: { id: user.id, name: user.name, email: user.email, role: user.role, library: user.library } });
+
+    const student = await prisma.student.findFirst({
+      where: { libraryId: user.libraryId, email: user.email },
+      select: { id: true, name: true, phone: true, email: true, seatNumber: true, qrToken: true, status: true, monthlyFeeOverride: true },
+    });
+
+    res.json({ user: { id: user.id, name: user.name, email: user.email, role: user.role, library: user.library }, student });
   } catch (e) {
     next(e);
   }

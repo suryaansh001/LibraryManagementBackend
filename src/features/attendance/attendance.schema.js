@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 export const scanSchema = z.object({
-  qrToken: z.string().uuid('Invalid QR token format'),
+  qrToken: z.string().min(1, 'QR token is required'),
 });
 
 export const manualSchema = z.object({
-  studentId: z.string().uuid(),
+  studentId: z.string().min(1, 'Student ID is required'),
   type: z.enum(['ENTRY', 'EXIT']),
 });
 

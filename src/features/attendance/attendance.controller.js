@@ -27,19 +27,10 @@ export async function scanAttendance(req, res, next) {
       });
 
       let newType;
-      if (!lastEvent || lastEvent.type === 'EXIT') {
-        newType = 'ENTRY';
-      } else if (lastEvent.type === 'ENTRY') {
-        if (isToday(lastEvent.timestamp)) {
-          throw new ConflictError('Already inside — scan exit first.');
-        }
-        newType = 'ENTRY';
+      if (lastEvent && lastEvent.type === 'ENTRY' && isToday(lastEvent.timestamp)) {
+        newType = 'EXIT';
       } else {
         newType = 'ENTRY';
-      }
-
-      if (newType === 'EXIT' && (!lastEvent || lastEvent.type !== 'ENTRY')) {
-        throw new ConflictError('No active entry found.');
       }
 
       const event = await tx.attendanceEvent.create({
@@ -51,10 +42,11 @@ export async function scanAttendance(req, res, next) {
         },
       });
 
-      return { event, student };
+      return { event, student, isInside: newType === 'ENTRY' };
     });
 
-    res.json({ event: result.event, type: result.event.type, student: { id: result.student.id, name: result.student.name, qrToken: result.student.qrToken } });
+    const greeting = result.isInside ? `Welcome, ${result.student.name}` : `Bye Bye, ${result.student.name}`;
+    res.json({ event: result.event, type: result.event.type, isInside: result.isInside, greeting, student: { id: result.student.id, name: result.student.name, qrToken: result.student.qrToken } });
   } catch (e) { next(e); }
 }
 
@@ -91,10 +83,11 @@ export async function manualAttendance(req, res, next) {
         },
       });
 
-      return { event, student };
+      return { event, student, isInside: type === 'ENTRY' };
     });
 
-    res.json({ event: result.event, type: result.event.type, student: { id: result.student.id, name: result.student.name } });
+    const greeting = result.isInside ? `Welcome, ${result.student.name}` : `Bye Bye, ${result.student.name}`;
+    res.json({ event: result.event, type: result.event.type, isInside: result.isInside, greeting, student: { id: result.student.id, name: result.student.name } });
   } catch (e) { next(e); }
 }
 

@@ -9,6 +9,8 @@ export async function dashboardSummary(req, res, next) {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
     const [occupancy, todayAttendance, overdueCount] = await Promise.all([
       prisma.attendanceEvent.count({

@@ -89,6 +89,7 @@ model Student {
   name            String
   phone           String
   email           String?
+  passwordHash    String?
   photoUrl        String?
   gender          String?
   dateOfBirth     DateTime?
@@ -102,6 +103,7 @@ model Student {
   qrToken         String        @unique
   seatNumber      String?
   monthlyFeeOverride Decimal?  @db.Decimal(10, 2)
+  isGuest         Boolean       @default(false)
 
   emergencyContactName  String?
   emergencyContactPhone String?
