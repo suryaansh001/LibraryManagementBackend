@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { config } from '../config/env.js';
 
-export function authMiddleware(req, res, next) { console.log('authMiddleware: cookie=', req.headers.cookie?.substring(0,30));
+export function authMiddleware(req, res, next) {
   const cookieHeader = req.headers.cookie || '';
   const tokenMatch = cookieHeader.match(/token=([^;]+)/);
   if (!tokenMatch) {

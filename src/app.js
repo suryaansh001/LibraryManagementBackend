@@ -13,7 +13,7 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
 import { tenantScope } from './middleware/tenantScope.js';
 
-const logger = pino({ level: (process.env.NODE_ENV || 'development') === 'development' ? 'debug' : 'info' });
+const logger = pino({ level: (process.env.NODE_ENV || 'development') === 'development' ? 'warn' : 'info' });
 
 export function createApp() {
   const app = express();
