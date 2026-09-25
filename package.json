@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "node --watch src/server.js",
-    "start": "node src/server.js",
+    "start": "prisma migrate deploy && prisma generate && node src/server.js",
+    "build": "prisma generate",
+    "db:deploy": "prisma migrate deploy",
     "db:init": "npx prisma migrate dev --name init",
     "db:seed": "node setup.js",
     "db:studio": "npx prisma studio"
@@ -14,6 +16,7 @@
   "dependencies": {
     "express": "^5.1.0",
     "@prisma/client": "^6.18.0",
+    "prisma": "^6.18.0",
     "zod": "^3.24.0",
     "jsonwebtoken": "^9.0.2",
     "bcrypt": "^5.1.1",
@@ -24,7 +27,5 @@
     "compression": "^1.7.4",
     "helmet": "^8.1.0"
   },
-  "devDependencies": {
-    "prisma": "^6.18.0"
-  }
+  "devDependencies": {}
 }
