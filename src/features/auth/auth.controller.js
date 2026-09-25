@@ -24,10 +24,11 @@ export async function loginController(req, res, next) {
       { expiresIn: '7d' }
     );
 
+    const isHttpsRequest = req.headers.origin?.startsWith('https://') || process.env.FRONTEND_URL?.startsWith('https://');
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: Boolean(isHttpsRequest),
+      sameSite: isHttpsRequest ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -39,7 +40,8 @@ export async function loginController(req, res, next) {
 
 export async function logoutController(req, res, next) {
   try {
-    res.clearCookie('token');
+    const isHttpsRequest = req.headers.origin?.startsWith('https://') || process.env.FRONTEND_URL?.startsWith('https://');
+    res.clearCookie('token', { secure: Boolean(isHttpsRequest), sameSite: isHttpsRequest ? 'none' : 'lax' });
     res.json({ message: 'Logged out' });
   } catch (e) {
     next(e);
