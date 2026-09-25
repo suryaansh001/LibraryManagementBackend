@@ -1,4 +1,4 @@
-import prisma from './config/db.js';
+import prisma from './src/config/db.js';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 
@@ -36,6 +36,22 @@ async function main() {
       },
     });
     console.log('Default owner created: owner@libman.local / admin123');
+  }
+
+  const admin = await prisma.user.findUnique({ where: { email: 'admin@libman.local' } });
+  if (!admin) {
+    const hash = await bcrypt.hash('admin123', 10);
+    const lib = await prisma.library.findFirst();
+    await prisma.user.create({
+      data: {
+        email: 'admin@libman.local',
+        passwordHash: hash,
+        name: 'Platform Admin',
+        role: 'ADMIN',
+        libraryId: lib.id,
+      },
+    });
+    console.log('Default admin created: admin@libman.local / admin123');
   }
 
   console.log('Database initialized successfully');

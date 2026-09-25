@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const createStudentSchema = z.object({
   name: z.string().min(1).max(100),
   phone: z.string().min(7).max(20),
-  email: z.string().email().optional().or(z.literal('')),
+  email: z.string().email(),
   password: z.string().min(6).optional(),
   monthlyFeeOverride: z.number().positive().optional(),
   seatNumber: z.string().optional(),

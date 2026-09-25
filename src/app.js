@@ -9,6 +9,7 @@ import { setupAttendanceRoutes } from './features/attendance/attendance.routes.j
 import { setupFeesRoutes } from './features/fees/fees.routes.js';
 import { setupDashboardRoutes } from './features/dashboard/dashboard.routes.js';
 import { setupSettingsRoutes } from './features/settings/settings.routes.js';
+import { setupAdminRoutes } from './features/admin/admin.routes.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
 import { tenantScope } from './middleware/tenantScope.js';
@@ -46,6 +47,7 @@ export function createApp() {
   setupFeesRoutes(app);
   setupDashboardRoutes(app);
   setupSettingsRoutes(app);
+  setupAdminRoutes(app);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

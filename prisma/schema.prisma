@@ -8,8 +8,16 @@ datasource db {
 }
 
 enum Role {
+  ADMIN
   OWNER
   STAFF
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAYMENT_PENDING
+  SUSPENDED
 }
 
 enum StudentStatus {
@@ -48,6 +56,10 @@ model Library {
   timezone          String    @default("Asia/Kolkata")
   logoUrl           String?
   isActive          Boolean   @default(true)
+  subscriptionStatus SubscriptionStatus @default(TRIAL)
+  trialEndsAt       DateTime?
+  paymentDueAt      DateTime?
+  suspendedAt       DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
