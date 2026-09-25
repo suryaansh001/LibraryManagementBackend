@@ -33,6 +33,13 @@ export function createApp() {
   app.use(pinoHttp({ logger }));
   app.use(express.json());
 
+  app.get('/', (req, res) => {
+    res.json({ status: 'ok', service: 'library-management-backend' });
+  });
+  app.head('/', (req, res) => {
+    res.sendStatus(200);
+  });
+
   app.use((req, res, next) => {
     res.setHeader('Content-Type', 'application/json');
     next();
